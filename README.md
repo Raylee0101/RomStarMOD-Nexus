@@ -2,11 +2,8 @@
 
 RomStarMOD Nexus Free is the public, free Nexus Mods edition of RomStar for Romestead.
 
-This edition is intentionally separate from the private standard RomStar build.
-
 ## Edition
 
-- No license key system
 - English UI only
 - No language selector
 - Manual installation only
@@ -41,7 +38,3 @@ Romestead\BepInEx\plugins\RomStar\
 ```
 
 4. Start Romestead and press `F1` in game to open RomStar.
-
-## Notes
-
-The standard/private RomStar edition is maintained separately and is not part of this public repository.
