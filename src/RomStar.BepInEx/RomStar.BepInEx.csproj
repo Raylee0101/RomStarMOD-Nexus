@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>RomStar.BepInEx</AssemblyName>
+    <RootNamespace>RomStar.BepInEx</RootNamespace>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>NEXUS_FREE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx.Core">
+      <HintPath>C:\SteamLibrary\steamapps\common\romestead\BepInEx\core\BepInEx.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BepInEx.NET.Common">
+      <HintPath>C:\SteamLibrary\steamapps\common\romestead\BepInEx\core\BepInEx.NET.Common.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>C:\SteamLibrary\steamapps\common\romestead\BepInEx\core\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Romestead">
+      <HintPath>C:\SteamLibrary\steamapps\common\romestead\Romestead.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="CandideServer">
+      <HintPath>C:\SteamLibrary\steamapps\common\romestead\CandideServer.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="CandideCreator.Shared">
+      <HintPath>C:\SteamLibrary\steamapps\common\romestead\CandideCreator.Shared.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Shared">
+      <HintPath>C:\SteamLibrary\steamapps\common\romestead\Shared.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ImGui.NET">
+      <HintPath>C:\SteamLibrary\steamapps\common\romestead\ImGui.NET.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>C:\SteamLibrary\steamapps\common\romestead\MonoGame.Framework.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
