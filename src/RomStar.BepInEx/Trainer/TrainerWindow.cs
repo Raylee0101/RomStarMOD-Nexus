@@ -161,9 +161,9 @@ internal static class TrainerWindow
 
     private readonly record struct CatalogItem(string Id, string ChineseName, string EnglishName, string? IconId, string CategoryId)
     {
-        public string Display => string.IsNullOrWhiteSpace(ChineseName)
-            ? $"{EnglishName} [{Id}]"
-            : $"{ChineseName} / {EnglishName} [{Id}]";
+        public string Display => string.IsNullOrWhiteSpace(EnglishName)
+            ? $"{CleanInternalId(Id)} [{Id}]"
+            : $"{EnglishName} [{Id}]";
     }
 
     private static string status = "RomStar BepInEx 修改器已加载。";
@@ -681,26 +681,9 @@ internal static class TrainerWindow
 
     private static void DrawHeader()
     {
-        float headerWidth = ImGui.GetContentRegionAvail().X;
-        ImGui.BeginChild("RomStarAnnouncement", new Vector2(0f, 118f), true);
-        string licenseText = BuildLicenseSummary();
-        float rightColumnX = Math.Max(360f, headerWidth - 220f);
-
-        ImGui.TextColored(new Vector4(0.96f, 0.88f, 0.64f, 1f), "RomStar");
-
-        ImGui.SetCursorPosX(rightColumnX);
-        ImGui.TextColored(new Vector4(0.92f, 0.78f, 0.48f, 1f), T($"版本：{DisplayVersion}", $"Version: {DisplayVersion}"));
-        ImGui.SetCursorPosX(rightColumnX);
-        ImGui.TextColored(new Vector4(0.92f, 0.78f, 0.48f, 1f), licenseText);
-
-        ImGui.TextWrapped("This Nexus build is free and does not require a license key.");
-        ImGui.TextColored(new Vector4(0.55f, 1f, 0.95f, 1f), status);
+        ImGui.BeginChild("RomStarAnnouncement", new Vector2(0f, 58f), true);
+        ImGui.TextColored(new Vector4(0.96f, 0.88f, 0.64f, 1f), "ROMSTAR");
         ImGui.EndChild();
-    }
-
-    private static string BuildLicenseSummary()
-    {
-        return "License: not required";
     }
 
     private static void ClearIdDropdownCache()
@@ -2776,19 +2759,6 @@ internal static class TrainerWindow
 
     private static string AuraDisplayName(string auraId)
     {
-        try
-        {
-            CitizenAuraInfo? aura = CitizenAuraDatabase.GetAuraOrNull(auraId);
-            string translated = aura is not null ? TranslateGameText(aura.Name) : "";
-            if (!string.IsNullOrWhiteSpace(translated) && !translated.StartsWith("aura:", StringComparison.OrdinalIgnoreCase))
-            {
-                return $"{translated} [{auraId}]";
-            }
-        }
-        catch
-        {
-        }
-
         return CleanInternalId(auraId) + " [" + auraId + "]";
     }
 
@@ -2829,15 +2799,7 @@ internal static class TrainerWindow
 
     private static string CitizenDisplayName(CitizenModel citizen)
     {
-        try
-        {
-            string name = citizen.Name.GetTranslation();
-            return string.IsNullOrWhiteSpace(name) ? citizen.Id.ToString() : name;
-        }
-        catch
-        {
-            return citizen.Id.ToString();
-        }
+        return citizen.Id.ToString();
     }
 
     private static string JobDisplayName(string? jobId, bool isMale)
@@ -2845,19 +2807,6 @@ internal static class TrainerWindow
         if (string.IsNullOrWhiteSpace(jobId))
         {
             return T("无职业", "No Job");
-        }
-
-        try
-        {
-            JobData? job = JobDataBase.GetJobOrNull(jobId);
-            string name = job?.GetName(isMale) ?? "";
-            if (!string.IsNullOrWhiteSpace(name) && !name.StartsWith("job:", StringComparison.OrdinalIgnoreCase))
-            {
-                return name;
-            }
-        }
-        catch
-        {
         }
 
         return CleanInternalId(jobId);
@@ -2937,16 +2886,7 @@ internal static class TrainerWindow
 
     private static string SafeItemName(ItemInstanceModel item)
     {
-        try
-        {
-            ItemData? data = GetItemDataForInstance(item);
-            string name = data is not null ? TranslateGameText(data.Name) : "";
-            return string.IsNullOrWhiteSpace(name) ? item.BaseDataId : name;
-        }
-        catch
-        {
-            return item.BaseDataId;
-        }
+        return CleanInternalId(item.BaseDataId);
     }
 
     private static string ItemAuraDisplayName(string auraId)
@@ -4698,19 +4638,6 @@ internal static class TrainerWindow
 
     private static string ConstructionDisplayName(string id)
     {
-        try
-        {
-            ConstructionModel? model = ConstructionDataBase.GetConstructionOrNull(id);
-            string name = model is not null ? TranslateGameText(model.Name) : "";
-            if (!string.IsNullOrWhiteSpace(name) && name != id)
-            {
-                return name;
-            }
-        }
-        catch
-        {
-        }
-
         return CleanInternalId(id);
     }
 
@@ -4740,57 +4667,6 @@ internal static class TrainerWindow
 
     private static string EntityTranslatedDisplayName(string id)
     {
-        if (!TryGetEntityBaseGuid(id, out Guid baseGuid))
-        {
-            return "";
-        }
-
-        string rawName = "";
-        if (DoodadDatabaseManager.TryGetEntityBaseData(baseGuid, out EntityWrapper? entity))
-        {
-            rawName = entity.Name;
-        }
-
-        BossData? boss = BossDataBase.DataMap.Values.FirstOrDefault(item => item.BossEntityBaseId == baseGuid);
-        string name = boss is not null ? TranslateGameText(boss.Name) : "";
-        if (IsUsableTranslatedName(name, id))
-        {
-            return name;
-        }
-
-        ConstructionModel? construction = ConstructionDataBase.DataMap.Values.FirstOrDefault(item =>
-            Guid.TryParse(item.SpawnedId, out Guid spawnedId) && spawnedId == baseGuid);
-        name = construction is not null ? TranslateGameText(construction.Name) : "";
-        if (IsUsableTranslatedName(name, id))
-        {
-            return name;
-        }
-
-        ConstructionResourceDataModel resource = ConstructionResourcesDataBase.DataMap.Values.FirstOrDefault(item =>
-            item.DefaultBaseGuid.HasValue && item.DefaultBaseGuid.Value == baseGuid);
-        name = resource.DefaultBaseGuid.HasValue ? TranslateGameText(resource.Name) : "";
-        if (IsUsableTranslatedName(name, id))
-        {
-            return name;
-        }
-
-        FurnitureData? furniture = FurnitureDataBase.DataMap.Values.FirstOrDefault(item =>
-            item.Rotations.Any(rotation => rotation.Any(option => option.BaseId == baseGuid)));
-        name = furniture is not null ? TranslateGameText(furniture.DisplayNameKey) : "";
-        if (IsUsableTranslatedName(name, id))
-        {
-            return name;
-        }
-
-        ItemData? itemData = ItemDataBase.DataMap.Values.FirstOrDefault(item =>
-            string.Equals(item.Id, id, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(item.Id, rawName, StringComparison.OrdinalIgnoreCase));
-        name = itemData is not null ? TranslateGameText(itemData.Name) : "";
-        if (IsUsableTranslatedName(name, id))
-        {
-            return name;
-        }
-
         return "";
     }
 
@@ -4962,19 +4838,6 @@ internal static class TrainerWindow
 
     private static string BossDisplayName(string id)
     {
-        try
-        {
-            BossData? data = BossDataBase.GetBossOrNull(id);
-            string name = data is not null ? TranslateGameText(data.Name) : "";
-            if (!string.IsNullOrWhiteSpace(name) && name != id)
-            {
-                return name;
-            }
-        }
-        catch
-        {
-        }
-
         return CleanInternalId(id);
     }
 
@@ -4992,19 +4855,6 @@ internal static class TrainerWindow
 
     private static string RaidDisplayName(string id)
     {
-        try
-        {
-            RaidData? data = RaidDataBase.GetRaidOrNull(id);
-            string name = data is not null ? TranslateGameText(data.NameKey) : "";
-            if (!string.IsNullOrWhiteSpace(name) && name != id)
-            {
-                return name;
-            }
-        }
-        catch
-        {
-        }
-
         return CleanInternalId(id);
     }
 
@@ -5096,7 +4946,6 @@ internal static class TrainerWindow
         {
             query = query.Where(item =>
                 item.Id.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                item.ChineseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                 item.EnglishName.Contains(term, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -5118,7 +4967,6 @@ internal static class TrainerWindow
         {
             query = query.Where(item =>
                 item.Id.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                item.ChineseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                 item.EnglishName.Contains(term, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -5188,20 +5036,12 @@ internal static class TrainerWindow
 
     private static string GetCatalogDisplayName(CatalogItem item)
     {
-        if (currentLanguage == UiLanguage.English && !string.IsNullOrWhiteSpace(item.EnglishName))
-        {
-            return item.EnglishName;
-        }
-
-        if (!string.IsNullOrWhiteSpace(item.ChineseName))
-        {
-            return item.ChineseName;
-        }
         if (!string.IsNullOrWhiteSpace(item.EnglishName))
         {
             return item.EnglishName;
         }
-        return item.Id;
+
+        return !string.IsNullOrWhiteSpace(item.Id) ? CleanInternalId(item.Id) : "";
     }
 
     private static void DrawItemIcon(CatalogItem item, float size)
