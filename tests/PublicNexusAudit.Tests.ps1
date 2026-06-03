@@ -81,12 +81,12 @@ Assert-NotContains $trainer 'DrawLanguageSelector' 'Nexus source must not includ
 Assert-NotContains $trainer 'RomesteadChineseInput' 'Nexus source must not include the Chinese input bridge.'
 Assert-NotContains $trainer 'CN Input' 'Nexus source must not include Chinese input UI.'
 Assert-NotContains $plugin 'LicenseManager' 'Nexus build must not reference the normal-edition key system.'
-Assert-Contains $readme 'source-only' 'Nexus README must clearly state this GitHub repository is source-only.'
-Assert-Contains $readme 'Nexus Mods' 'Nexus README must direct players to the Nexus Mods release package.'
-Assert-NotContains $readme 'Copy `RomStar.BepInEx.dll`' 'Nexus README must not tell players to copy a DLL that is not stored in GitHub.'
+Assert-Contains $readme 'dist/RomStar.BepInEx.dll' 'Nexus README must tell players where the prebuilt DLL is stored.'
+Assert-Contains $readme 'Romestead\BepInEx\plugins\RomStar\' 'Nexus README must tell players where to install the DLL.'
+Assert-Contains $readme 'Copy `RomStar.BepInEx.dll`' 'Nexus README must tell players to copy the DLL into the plugin folder.'
 
-if (Test-Path $distDll) {
-    throw "Nexus GitHub repository must not store compiled DLLs: $distDll"
+if (-not (Test-Path $distDll)) {
+    throw "Nexus GitHub DLL is missing: $distDll"
 }
 
 Write-Host 'Public Nexus audit passed.'
